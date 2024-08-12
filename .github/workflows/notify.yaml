@@ -33,15 +33,15 @@ jobs:
               ? context.payload.pull_request.html_url
               : `${context.payload.repository.html_url}/commit/${context.sha}`;
             
-            const triggerTitle = isPR
-              ? context.payload.pull_request.title
-              : `Commit ${context.sha.substring(0, 7)}`;
+            const triggerDescription = isPR
+              ? context.payload.pull_request.body || "No PR description provided."
+              : context.payload.head_commit.message || "No commit message provided.";
 
             const triggerType = isPR ? "PR" : "commit";
             const issueBody = `@simonerom Changes were detected in the 'docs', 'examples', or 'smartcontracts' folder. 
             Please review the changes and update the docs portal if required.
             
-            The changes were triggered by this ${triggerType} titled "${triggerTitle}": [${triggerLink}](${triggerLink}).`;
+            The changes were triggered by this ${triggerType}: [${triggerLink}](${triggerLink}) (${triggerDescription}).`;
 
             try {
               const issues = await github.rest.issues.listForRepo({
