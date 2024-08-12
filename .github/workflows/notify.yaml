@@ -1,4 +1,4 @@
-name: Notify DevRel of Changes to the Docs
+name: Folder Change Notification
 
 on:
   push:
@@ -24,7 +24,8 @@ jobs:
         with:
           script: |
             const { owner, repo } = context.repo;
-            const issueTitle = 'Chekout new changes in examples or docs';
+
+            const issueTitle = 'Changes detected in examples, smartcontracts, or docs folder';
 
             // Determine if this was triggered by a push or pull request
             const isPR = !!context.payload.pull_request;
@@ -32,11 +33,14 @@ jobs:
               ? context.payload.pull_request.html_url
               : `${context.payload.repository.html_url}/commit/${context.sha}`;
             
-            const triggerType = isPR ? "PR" : "commit";
-            const issueBody = `@simonerom Changes were detected in the 'docs', 'examples', or 'smartcontracts' folder. 
-            Please review the changes and update the docs portal if required.
+            const triggerTitle = isPR
+              ? context.payload.pull_request.title
+              : `Commit ${context.sha.substring(0, 7)}`;
 
-            The changes were triggered by this ${triggerType}: [${triggerLink}](${triggerLink}).`;
+            const triggerType = isPR ? "PR" : "commit";
+            const issueBody = `@simonerom Changes were detected in the 'examples', 'smartcontracts', or 'docs' folder. 
+            
+            Please review the changes. The changes were triggered by this ${triggerType} titled "${triggerTitle}": [${triggerLink}](${triggerLink}).`;
 
             try {
               const issues = await github.rest.issues.listForRepo({
@@ -70,4 +74,4 @@ jobs:
               throw error;
             }
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}  # Use PAT_TOKEN if needed for permissions
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}  # Using PAT_TOKEN if needed for permissions
