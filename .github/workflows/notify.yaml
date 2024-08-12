@@ -25,7 +25,7 @@ jobs:
           script: |
             const { owner, repo } = context.repo;
 
-            const issueTitle = 'checkout New Changes in Examples or Docs';
+            const issueTitle = 'Checkout new changes in Examples or Docs';
 
             // Determine if this was triggered by a push or pull request
             const isPR = !!context.payload.pull_request;
