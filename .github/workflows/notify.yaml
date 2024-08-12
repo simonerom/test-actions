@@ -41,9 +41,10 @@ jobs:
             const issueBody = `@simonerom Changes were detected in the 'docs', 'examples', or 'smartcontracts' folder. 
             Please review the changes and update the docs portal if required.
             
-            The changes were triggered by this:
-            ${triggerType}: [${triggerLink}](${triggerLink}) 
-            _${triggerDescription}_.`;
+            The changes were triggered by this ${triggerType}:
+            
+            [${triggerLink}](${triggerLink}) 
+            _${triggerDescription}_`;
 
             try {
               const issues = await github.rest.issues.listForRepo({
