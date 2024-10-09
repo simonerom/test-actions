@@ -48,7 +48,14 @@ jobs:
                 pull_number: prNumber
               });
 
-              modifiedFiles = files.data.map(file => `- [${file.filename}](${file.blob_url})`);
+              modifiedFiles = files.data.map(file => {
+                let symbol = file.status === 'added' ? '+' 
+                          : file.status === 'removed' ? '-' 
+                          : file.status === 'modified' ? 'U' 
+                          : file.status === 'renamed' ? 'R' 
+                          : '?';
+                return `${symbol} [${file.filename}](${file.blob_url})`;
+              });
             } else {
               // Fetch detailed commit information for a push event
               const commitSha = context.sha;
@@ -60,7 +67,14 @@ jobs:
 
               // Extract the files from the commit details
               const files = commitDetails.data.files;
-              modifiedFiles = files.map(file => `- [${file.filename}](${file.blob_url})`);
+              modifiedFiles = files.map(file => {
+                let symbol = file.status === 'added' ? '+' 
+                          : file.status === 'removed' ? '-' 
+                          : file.status === 'modified' ? 'U' 
+                          : file.status === 'renamed' ? 'R' 
+                          : '?';
+                return `${symbol} [${file.filename}](${file.blob_url})`;
+              });
             }
 
             const filesList = modifiedFiles.length > 0 
