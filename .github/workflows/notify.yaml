@@ -48,9 +48,17 @@ jobs:
                 pull_number: prNumber
               });
 
+              // Debugging: Log the files data to inspect the structure
+              console.log("Files from PR:", files.data);
+
               modifiedFiles = files.data.map(file => {
-                let symbol = file.status;
-                return `[${symbol}] [${file.filename}](${file.blob_url})`;
+                // Access the status of the file
+                let symbol = file.status === 'added' ? '+' 
+                          : file.status === 'removed' ? '-' 
+                          : file.status === 'modified' ? 'U' 
+                          : file.status === 'renamed' ? 'R' 
+                          : '?';
+                return `${symbol} [${file.filename}](${file.blob_url})`;
               });
             } else {
               // Fetch detailed commit information for a push event
@@ -60,6 +68,9 @@ jobs:
                 repo,
                 ref: commitSha
               });
+
+              // Debugging: Log the files data to inspect the structure
+              console.log("Files from Commit:", commitDetails.data.files);
 
               // Extract the files from the commit details
               const files = commitDetails.data.files;
@@ -74,7 +85,7 @@ jobs:
             }
 
             const filesList = modifiedFiles.length > 0 
-              ? `#### Modified Files:\n${modifiedFiles.join('\n')}`
+              ? `### Modified Files:\n${modifiedFiles.join('\n')}`
               : 'No modified files found.';
 
             const issueBody = `@simonerom Changes were detected in the 'docs', 'examples', or 'smartcontracts' folder. 
