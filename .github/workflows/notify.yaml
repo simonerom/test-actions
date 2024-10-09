@@ -64,7 +64,7 @@ jobs:
             }
 
             const filesList = modifiedFiles.length > 0 
-              ? `### Modified Files:\n${modifiedFiles.join('\n')}`
+              ? `#### Modified Files:\n${modifiedFiles.join('\n')}`
               : 'No modified files found.';
 
             const issueBody = `@simonerom Changes were detected in the 'docs', 'examples', or 'smartcontracts' folder. 
