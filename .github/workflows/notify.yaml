@@ -24,7 +24,6 @@ jobs:
         with:
           script: |
             const { owner, repo } = context.repo;
-
             const issueTitle = 'Checkout new changes in Examples or Docs';
 
             // Determine if this was triggered by a push or pull request
@@ -38,13 +37,41 @@ jobs:
               : context.payload.head_commit.message || "No commit message provided.";
 
             const triggerType = isPR ? "PR" : "commit";
+
+            let modifiedFiles = [];
+            if (isPR) {
+              // Fetch the list of files changed in the pull request
+              const prNumber = context.payload.pull_request.number;
+              const files = await github.rest.pulls.listFiles({
+                owner,
+                repo,
+                pull_number: prNumber
+              });
+
+              modifiedFiles = files.data.map(file => `- [${file.filename}](${file.blob_url})`);
+            } else {
+              // For push events, gather the list of modified files from the commits
+              const commits = context.payload.commits;
+              commits.forEach(commit => {
+                modifiedFiles.push(...commit.modified.map(file => `- [${file}](${context.payload.repository.html_url}/blob/${commit.id}/${file})`));
+                modifiedFiles.push(...commit.added.map(file => `- [${file}](${context.payload.repository.html_url}/blob/${commit.id}/${file})`));
+                modifiedFiles.push(...commit.removed.map(file => `- [${file}](${context.payload.repository.html_url}/blob/${commit.id}/${file})`));
+              });
+            }
+
+            const filesList = modifiedFiles.length > 0 
+              ? `### Modified Files:\n${modifiedFiles.join('\n')}`
+              : 'No modified files found.';
+
             const issueBody = `@simonerom Changes were detected in the 'docs', 'examples', or 'smartcontracts' folder. 
             Please review the changes and update the docs portal if required.
             
             The changes were triggered by this ${triggerType}:
             
             [${triggerLink}](${triggerLink}) 
-            _${triggerDescription}_`;
+            _${triggerDescription}_
+
+            ${filesList}`;
 
             try {
               const issues = await github.rest.issues.listForRepo({
