@@ -49,12 +49,8 @@ jobs:
               });
 
               modifiedFiles = files.data.map(file => {
-                let symbol = file.status === 'added' ? '+' 
-                          : file.status === 'removed' ? '-' 
-                          : file.status === 'modified' ? 'U' 
-                          : file.status === 'renamed' ? 'R' 
-                          : '?';
-                return `${symbol} [${file.filename}](${file.blob_url})`;
+                let symbol = file.status;
+                return `[${symbol}] [${file.filename}](${file.blob_url})`;
               });
             } else {
               // Fetch detailed commit information for a push event
