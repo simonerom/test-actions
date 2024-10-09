@@ -50,19 +50,17 @@ jobs:
 
               modifiedFiles = files.data.map(file => `- [${file.filename}](${file.blob_url})`);
             } else {
-              // For push events, gather the list of modified files from the commits
-              const commits = context.payload.commits;
-              commits.forEach(commit => {
-                if (commit.modified) {
-                  modifiedFiles.push(...commit.modified.map(file => `- [${file}](${context.payload.repository.html_url}/blob/${commit.id}/${file})`));
-                }
-                if (commit.added) {
-                  modifiedFiles.push(...commit.added.map(file => `- [${file}](${context.payload.repository.html_url}/blob/${commit.id}/${file})`));
-                }
-                if (commit.removed) {
-                  modifiedFiles.push(...commit.removed.map(file => `- [${file}](${context.payload.repository.html_url}/blob/${commit.id}/${file})`));
-                }
+              // Fetch detailed commit information for a push event
+              const commitSha = context.sha;
+              const commitDetails = await github.rest.repos.getCommit({
+                owner,
+                repo,
+                ref: commitSha
               });
+
+              // Extract the files from the commit details
+              const files = commitDetails.data.files;
+              modifiedFiles = files.map(file => `- [${file.filename}](${file.blob_url})`);
             }
 
             const filesList = modifiedFiles.length > 0 
